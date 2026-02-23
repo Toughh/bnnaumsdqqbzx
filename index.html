@@ -7,7 +7,7 @@
     body {
       font-family: Arial, sans-serif;
       padding: 20px;
-      background-color: #f7f7f7;
+      background-color: #f4f4f4;
     }
     .card {
       background: white;
@@ -17,16 +17,21 @@
       max-width: 500px;
       margin: auto;
     }
-    h2 {
-      color: #333;
+    h2 { margin-bottom: 5px; }
+    p { font-size: 16px; margin: 8px 0; }
+    .highlight { font-weight: bold; }
+    button {
+      margin-top: 15px;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 6px;
+      background-color: #28a745;
+      color: white;
+      cursor: pointer;
+      font-size: 14px;
     }
-    p {
-      font-size: 16px;
-      margin: 8px 0;
-    }
-    .highlight {
-      font-weight: bold;
-      color: #e67e22;
+    button:hover {
+      background-color: #218838;
     }
   </style>
 </head>
@@ -40,6 +45,8 @@
     <p><span class="highlight">Mobile:</span> <span id="mobile"></span></p>
     <p><span class="highlight">Ordered Items:</span> <span id="items"></span></p>
     <p><span class="highlight">Estimated Time to Deliver:</span> Within 20-30 mins</p>
+
+    <button onclick="confirmOrder()">Confirm & Send to Kitchen</button>
   </div>
 
   <script>
@@ -50,10 +57,36 @@
     const mobile = urlParams.get("mobile") || "Not Provided";
     const items = urlParams.get("items") || "No items found";
 
-    // Set values to HTML
+    // Display on page
     document.getElementById("customer").innerText = customer;
     document.getElementById("mobile").innerText = mobile;
     document.getElementById("items").innerText = items;
+
+    async function confirmOrder() {
+      const orderData = {
+        customer: customer,
+        mobile: mobile,
+        items: items,
+        status: "Confirmed by Restaurant",
+        estimated_time: "20-30 mins"
+      };
+
+      try {
+        const res = await fetch("https://avijitemail01.app.n8n.cloud/webhook/restaurant-order", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(orderData)
+        });
+
+        const data = await res.json();
+        alert("Order sent to kitchen successfully!");
+      } catch (error) {
+        alert("Error sending order to n8n");
+        console.error(error);
+      }
+    }
   </script>
 
 </body>
