@@ -72,15 +72,8 @@
 
     // Function to get current datetime in dd:mm:yy:hh:mm:ss format
     function getCurrentDateTime() {
-      const now = new Date();
-      const dd = String(now.getDate()).padStart(2, '0');
-      const mm = String(now.getMonth() + 1).padStart(2, '0');
-      const yy = String(now.getFullYear()).slice(-2);
-      const hh = String(now.getHours()).padStart(2, '0');
-      const min = String(now.getMinutes()).padStart(2, '0');
-      const ss = String(now.getSeconds()).padStart(2, '0');
-      return `${dd}:${mm}:${yy}:${hh}:${min}:${ss}`;
-    }
+		return new Date().toISOString(); // 🔥 Airtable-compatible
+	}
 
     const createdAt = getCurrentDateTime();
 
@@ -97,8 +90,8 @@
         customer: customer,
         mobile: mobile,
         items: items,
-        status: [selectedStatus],     // send as array for Airtable
-        created_at: [createdAt]       // send as array for Airtable
+        status: selectedStatus,
+        created_at: createdAt
       };
 
       try {
