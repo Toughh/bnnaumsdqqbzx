@@ -33,6 +33,12 @@
     button:hover {
       background-color: #218838;
     }
+    select {
+      margin-top: 10px;
+      padding: 5px;
+      border-radius: 5px;
+      font-size: 14px;
+    }
   </style>
 </head>
 <body>
@@ -44,7 +50,14 @@
     <p><span class="highlight">Customer:</span> <span id="customer"></span></p>
     <p><span class="highlight">Mobile:</span> <span id="mobile"></span></p>
     <p><span class="highlight">Ordered Items:</span> <span id="items"></span></p>
-    <p><span class="highlight">Estimated Time to Deliver:</span> Within 20-30 mins</p>
+    <p><span class="highlight">Created At:</span> <span id="created_at">Calculating...</span></p>
+
+    <p><span class="highlight">Status:</span></p>
+    <select id="status">
+      <option>Ordered Successfully</option>
+      <option>Order In Progress</option>
+      <option>Order Delivered</option>
+    </select>
 
     <button onclick="confirmOrder()">Confirm & Send to Kitchen</button>
   </div>
@@ -57,31 +70,46 @@
     const mobile = urlParams.get("mobile") || "Not Provided";
     const items = urlParams.get("items") || "No items found";
 
-    // Display on page
+    // Function to get current datetime in dd:mm:yy:hh:mm:ss format
+    function getCurrentDateTime() {
+      const now = new Date();
+      const dd = String(now.getDate()).padStart(2, '0');
+      const mm = String(now.getMonth() + 1).padStart(2, '0');
+      const yy = String(now.getFullYear()).slice(-2);
+      const hh = String(now.getHours()).padStart(2, '0');
+      const min = String(now.getMinutes()).padStart(2, '0');
+      const ss = String(now.getSeconds()).padStart(2, '0');
+      return `${dd}:${mm}:${yy}:${hh}:${min}:${ss}`;
+    }
+
+    const createdAt = getCurrentDateTime();
+
+    // Display values
     document.getElementById("customer").innerText = customer;
     document.getElementById("mobile").innerText = mobile;
     document.getElementById("items").innerText = items;
+    document.getElementById("created_at").innerText = createdAt;
 
     async function confirmOrder() {
+      const selectedStatus = document.getElementById("status").value;
+
       const orderData = {
         customer: customer,
         mobile: mobile,
         items: items,
-        status: "Confirmed by Restaurant",
-        estimated_time: "20-30 mins"
+        status: [selectedStatus],     // send as array for Airtable
+        created_at: [createdAt]       // send as array for Airtable
       };
 
       try {
         const res = await fetch("https://avijitemail01.app.n8n.cloud/webhook/restaurant-order", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(orderData)
         });
 
         const data = await res.json();
-		console.log(data);
+        console.log(data);
         alert("Order sent to kitchen successfully!");
       } catch (error) {
         alert("Error sending order to n8n");
